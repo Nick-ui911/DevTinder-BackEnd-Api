@@ -41,6 +41,9 @@ const userSchema = new mongoose.Schema(
         }
       },
     },
+    PhotoUrl: {
+      type: String,
+    },
     skills: {
       type: [String],
       required: true,
@@ -56,25 +59,25 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-
 // these are the schema method to bycrypt.compare and for creating jwt token;
 
 userSchema.methods.getJWT = async function () {
   const user = this;
-  const token = jwt.sign({ email: user.email }, "nick@102030",{expiresIn:"1d"});
+  const token = jwt.sign({ email: user.email }, "nick@102030", {
+    expiresIn: "1d",
+  });
   return token;
-  
-  
-}
+};
 
-
-userSchema.methods.validatePassword = async function (passwordInputByUser){
+userSchema.methods.validatePassword = async function (passwordInputByUser) {
   const user = this;
   const hashedPassword = user.password;
-  const isValidPassword = await bcrypt.compare(passwordInputByUser, hashedPassword);
+  const isValidPassword = await bcrypt.compare(
+    passwordInputByUser,
+    hashedPassword
+  );
   return isValidPassword;
-
-}
+};
 
 // double Ensuring unique index for email at the database level
 // userSchema.index({ email: 1 }, { unique: true });
@@ -82,11 +85,3 @@ userSchema.methods.validatePassword = async function (passwordInputByUser){
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;
-
-
-
-
-
-
-
-

@@ -7,7 +7,7 @@ const authRouter = express.Router();
 authRouter.post("/signup", async (req, res) => {
   try {
     validateData(req);
-    const { name, email, password, gender,skills } = req.body;
+    const { name, email, password, gender, PhotoUrl,skills } = req.body;
     const hashPassword = await bcrypt.hash(password, 10);
     console.log(hashPassword);
 
@@ -17,6 +17,7 @@ authRouter.post("/signup", async (req, res) => {
       password: hashPassword,
       email,
       gender,
+      PhotoUrl,
       skills,
     });
 
@@ -51,14 +52,14 @@ authRouter.post("/login", async (req, res) => {
 
     // Generate a JWT token
     const token = await user.getJWT(); // Removed unnecessary `await` as `getJWT()` is synchronous
-    console.log(token);
+    // console.log(token);
     // Set the cookie with the token
     res.cookie("token", token, { 
       expires: new Date(Date.now() + 8 * 3600000), // 8 hours expiration
     });
 
     // Successful login
-    return res.status(200).send("Login successful");
+    return res.status(200).send(user);
   } catch (error) {
     console.error("Error during login:", error.message);
 

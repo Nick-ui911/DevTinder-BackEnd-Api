@@ -4,6 +4,7 @@ const { authUser } = require("../middleware/authuser");
 const { validateEditData, ValidatePassword } = require("../utils/validation");
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
+
 profileRouter.get("/profile/view", authUser, async (req, res) => {
   try {
     const user = req.user;
