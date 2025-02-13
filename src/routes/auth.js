@@ -21,8 +21,19 @@ authRouter.post("/signup", async (req, res) => {
       skills,
     });
 
-    await user.save(); // Save the user to the database
-    res.send("Data saved successfully!");
+   const savedUser =  await user.save(); // Save the user to the database
+
+      // Generate a JWT token
+      const token = await savedUser.getJWT(); // Removed unnecessary `await` as `getJWT()` is synchronous
+      // console.log(token);
+      // Set the cookie with the token
+      res.cookie("token", token, { 
+        expires: new Date(Date.now() + 8 * 3600000), // 8 hours expiration
+      });
+    res.json({
+      message: "User created successfully",
+      data: savedUser
+    });
   } catch (error) {
     console.error("Error saving user:", error.message);
     res.status(500).send("Failed to save user data.");
