@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema(
     gender: {
       type: String,
       validate(value) {
-        if (!["male", "female", "other"].includes(value.toLowerCase())) {
+        if (!["Male", "Female", "Other"].includes(value)) {
           throw new Error("Invalid gender");
         }
       },
@@ -46,7 +46,6 @@ const userSchema = new mongoose.Schema(
     },
     skills: {
       type: [String],
-      required: true,
       validate(value) {
         if (value.length > 10) {
           throw new Error("Skills cannot be more than 10");
