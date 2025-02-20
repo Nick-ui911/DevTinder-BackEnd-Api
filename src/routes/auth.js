@@ -7,7 +7,7 @@ const authRouter = express.Router();
 authRouter.post("/signup", async (req, res) => {
   try {
     validateData(req);
-    const { name, email, password, gender, PhotoUrl,skills } = req.body;
+    const { name, email,age, password, gender, PhotoUrl,skills } = req.body;
     const hashPassword = await bcrypt.hash(password, 10);
     console.log(hashPassword);
 
@@ -16,6 +16,7 @@ authRouter.post("/signup", async (req, res) => {
       name,
       password: hashPassword,
       email,
+      age,
       gender,
       PhotoUrl,
       skills,
