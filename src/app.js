@@ -4,12 +4,14 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const app = express();
 
-// CORS Options
 const corsOptions = {
-  origin: ["http://localhost:5173", "http://localhost:5174"],  // The URL of your frontend
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],  // Allowed  method
-  credentials: true,  // Allow cookies and credentials to be sent
+  origin: "*", // Allow all origins
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // Allowed methods
+  credentials: true, // Allow cookies and credentials
+  allowedHeaders: ["Content-Type", "Authorization"], // Allow necessary headers
+  exposedHeaders: ["Authorization"], // Expose authorization headers if needed
 };
+
 
 app.use(cors(corsOptions));
  
