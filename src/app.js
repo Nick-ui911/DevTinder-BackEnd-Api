@@ -3,14 +3,15 @@ const connectDB = require("./config/database");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const app = express();
-
 const corsOptions = {
-  origin: "*", // Allow all origins
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // Allowed methods
-  credentials: true, // Allow cookies and credentials
-  allowedHeaders: ["Content-Type", "Authorization"], // Allow necessary headers
-  exposedHeaders: ["Authorization"], // Expose authorization headers if needed
+  origin: "http://localhost:5173", // Specify frontend origin
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  credentials: true, // Allow credentials (cookies/tokens)
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
+
+app.use(cors(corsOptions));
+
 
 
 app.use(cors(corsOptions));
