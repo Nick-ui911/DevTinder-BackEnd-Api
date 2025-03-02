@@ -38,7 +38,7 @@ connectDB()
   .then(() => {
     console.log("Database is connected");
     app.listen(5000, () => {
-      console.log("Server is running on port 3000");
+      console.log("Server is running on port 5000");
     });
   })
   .catch((err) => {
