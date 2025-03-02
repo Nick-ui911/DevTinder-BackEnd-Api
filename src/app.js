@@ -4,7 +4,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const app = express();
 const corsOptions = {
-  origin: "http://localhost:5173", // Specify frontend origin
+  origin: "http://localhost:5173", // Set frontend origin explicitly
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   credentials: true, // Allow credentials (cookies/tokens)
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -37,8 +37,8 @@ app.get("/test-cors", cors(corsOptions), (req, res) => {
 connectDB()
   .then(() => {
     console.log("Database is connected");
-    app.listen(3300, () => {
-      console.log("Server is running on port 3300");
+    app.listen(3000, () => {
+      console.log("Server is running on port 3000");
     });
   })
   .catch((err) => {
