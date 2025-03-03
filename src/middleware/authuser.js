@@ -1,3 +1,4 @@
+require("dotenv").config(); // Load environment variables
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 
@@ -9,13 +10,11 @@ const authUser = async (req, res, next) => {
       return res.status(401).json("You must be logged in to access this.");
     }
 
-    // Verify token
-    const decoded = jwt.verify(token, "nick@102030");
-   
+    // Verify token using secret key from .env
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // Find user by email
     const user = await User.findOne({ email: decoded.email });
-   
 
     if (!user) {
       return res.status(404).json("User not found.");
