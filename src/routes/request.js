@@ -4,41 +4,96 @@ const requestRouter = express.Router();
 const { authUser } = require("../middleware/authuser");
 const User = require("../models/user");
 const ConnectionRequest = require("../models/connectionRequest");
+const { sendEmail } = require("../utils/sendEmail");
 
+// requestRouter.post(
+//   "/request/send/:status/:toUserId",
+//   authUser,
+//   async (req, res) => {
+//     try {
+//       // console.log("Request Body:", req.user);
+//       // console.log("Request Params:", req.params);
+//       const fromUserId = req.user?._id;
+//       const toUserId = req.params.toUserId;
+//       const status = req.params.status;
+//       const allowedStatus = ["ignored", "interested"];
+
+//       // Validate status
+//       if (!allowedStatus.includes(status)) {
+//         return res.status(400).json({ error: "Invalid status" });
+//       }
+
+//       // Validate toUserId
+//       if (!mongoose.Types.ObjectId.isValid(toUserId)) {
+//         return res.status(400).json({ error: "Invalid toUserId" });
+//       }
+
+//       // Check if toUser exists
+//       const toUser = await User.findById(toUserId);
+//       if (!toUser) {
+//         return res.status(404).json({ error: "User not found" });
+//       }
+
+//       // Check if connection request already exists
+//       const existingConnectionRequest = await ConnectionRequest.findOne({
+//         $or: [
+//           // iska mtlb hai ki khud ko nahi bhej skte request
+//           { fromUserId, toUserId },
+//           // iska mtlb hai ki agar tum bhej diye ho request toh woh nahi bhej skta request tumhe;
+//           { fromUserId: toUserId, toUserId: fromUserId },
+//         ],
+//       });
+
+//       if (existingConnectionRequest) {
+//         return res
+//           .status(400)
+//           .json({ error: "Connection request already sent" });
+//       }
+
+//       // Create new connection request
+//       const connectionRequest = new ConnectionRequest({
+//         fromUserId,
+//         toUserId,
+//         status,
+//       });
+
+//       const data = await connectionRequest.save();
+//       res.json({
+//         message: "Connection request sent successfully",
+//         data,
+//       });
+//     } catch (error) {
+//       console.error("Error occurred:", error);
+//       res.status(500).json({ error: error.message || "Something went wrong" });
+//     }
+//   }
+// );
 requestRouter.post(
   "/request/send/:status/:toUserId",
   authUser,
   async (req, res) => {
     try {
-      // console.log("Request Body:", req.user);
-      // console.log("Request Params:", req.params);
       const fromUserId = req.user?._id;
       const toUserId = req.params.toUserId;
       const status = req.params.status;
       const allowedStatus = ["ignored", "interested"];
 
-      // Validate status
       if (!allowedStatus.includes(status)) {
         return res.status(400).json({ error: "Invalid status" });
       }
 
-      // Validate toUserId
       if (!mongoose.Types.ObjectId.isValid(toUserId)) {
         return res.status(400).json({ error: "Invalid toUserId" });
       }
 
-      // Check if toUser exists
       const toUser = await User.findById(toUserId);
       if (!toUser) {
         return res.status(404).json({ error: "User not found" });
       }
 
-      // Check if connection request already exists
       const existingConnectionRequest = await ConnectionRequest.findOne({
         $or: [
-          // iska mtlb hai ki khud ko nahi bhej skte request
           { fromUserId, toUserId },
-          // iska mtlb hai ki agar tum bhej diye ho request toh woh nahi bhej skta request tumhe;
           { fromUserId: toUserId, toUserId: fromUserId },
         ],
       });
@@ -49,7 +104,6 @@ requestRouter.post(
           .json({ error: "Connection request already sent" });
       }
 
-      // Create new connection request
       const connectionRequest = new ConnectionRequest({
         fromUserId,
         toUserId,
@@ -57,8 +111,16 @@ requestRouter.post(
       });
 
       const data = await connectionRequest.save();
+
+      // Send email notification
+      await sendEmail(
+       "nbaghel392@gmail.com", // Recipient email
+        "New Connection Request", // Subject
+        `Hello ${toUser.name},\n\nYou have a new connection request from ${req.user.name}. Please check your dashboard to respond.\n\nBest regards,\nDevTinder Team`
+      );
+
       res.json({
-        message: "Connection request sent successfully",
+        message: "Connection request sent successfully & email notification sent",
         data,
       });
     } catch (error) {
@@ -67,7 +129,6 @@ requestRouter.post(
     }
   }
 );
-
 requestRouter.post(
   "/request/review/:status/:requestId",
   authUser,
