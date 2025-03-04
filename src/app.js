@@ -1,22 +1,19 @@
-require("dotenv").config(); 
+require("dotenv").config(); // Load .env variables
 const express = require("express");
 const connectDB = require("./config/database");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+
 const app = express();
+
 const corsOptions = {
-  origin: "http://localhost:5173", // Set frontend origin explicitly
+  origin: "http://localhost:5173",
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-  credentials: true, // Allow credentials (cookies/tokens)
+  credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 app.use(cors(corsOptions));
-
-
-
-app.use(cors(corsOptions));
- 
 app.use(express.json());
 app.use(cookieParser());
 
@@ -32,7 +29,6 @@ app.use("/", userRouter);
 app.get("/test-cors", cors(corsOptions), (req, res) => {
   res.json({ message: "CORS is working!" });
 });
-
 
 // Connect to the database and start the server
 connectDB()
