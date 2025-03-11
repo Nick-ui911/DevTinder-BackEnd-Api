@@ -1,7 +1,7 @@
 const express = require("express");
 const paymentRouter = express.Router();
 const { authUser } = require("../middleware/authuser");
-const razorpay = require("../utils/razorpay");
+const instance = require("../utils/razorpay");
 const Payment = require("../models/payment");
 const membershipAmount = require("../utils/constant");
 const User = require("../models/user");
@@ -44,7 +44,7 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
     const body = JSON.stringify(req.body);
 
     // Validate webhook signature
-    const isValid = razorpay.validateWebhookSignature(body, signature, secret);
+    const isValid = instance.validateWebhookSignature(body, signature, secret);
     if (!isValid) {
       return res.status(400).json({ message: "Invalid webhook signature" });
     }
