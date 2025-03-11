@@ -40,7 +40,6 @@ paymentRouter.post("/payment/create", authUser, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-const Razorpay = require("razorpay"); // Ensure Razorpay is imported
 
 paymentRouter.post("/payment/webhook", async (req, res) => {
   try {
