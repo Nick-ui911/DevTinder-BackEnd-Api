@@ -100,14 +100,14 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
     // Handle Payment Events
     if (event === "payment.captured") {
       console.log("✅ Payment Captured:", paymentData.amount);
-      sendEmail(
+    await  sendEmail(
         "ns048019@gmail.com",
         "Payment Status",
         `Hi ${user.name}, your payment of Rs ${paymentData.amount} has been captured successfully`
       );
     } else if (event === "payment.failed") {
       console.log("❌ Payment Failed:", paymentData.amount);
-      sendEmail(
+     await sendEmail(
         "ns048019@gmail.com",
         "Payment Status",
         `Hi ${user.name}, your payment of Rs ${paymentData.amount} has failed`
@@ -120,6 +120,13 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
     res.status(500).json({ error: "Webhook processing failed" });
   }
 });
-
+paymentRouter.get("/premium/verify" , authUser, async (req,res) => {
+  try {
+    
+  } catch (error) {
+    
+  }
+  
+})
 
 module.exports = paymentRouter;
