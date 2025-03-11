@@ -12,7 +12,7 @@ const corsOptions = {
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
 };
-require("./utils/cronJob")
+// require("./utils/cronJob")
 
 app.use(cors(corsOptions));
 app.use(express.json());
