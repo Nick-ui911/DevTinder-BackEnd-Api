@@ -103,7 +103,7 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
       await sendEmail(
         "ns048019@gmail.com",
         "Payment Status",
-        `Hi ${user.name}, your payment of Rs ${paymentData.amount} has been captured successfully`
+        `Hi ${user.name}, your payment of Rs ${(paymentData.amount)/100} has been captured successfully`
       );
     } else if (event === "payment.failed") {
       console.log("❌ Payment Failed:", paymentData.amount);
