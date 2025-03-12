@@ -110,7 +110,7 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
       await sendEmail(
         "ns048019@gmail.com",
         "Payment Status",
-        `Hi ${user.name}, your payment of Rs ${paymentData.amount} has failed`
+        `Hi ${user.name}, your payment of Rs ${(paymentData.amount)/100} has failed`
       );
     }
 
