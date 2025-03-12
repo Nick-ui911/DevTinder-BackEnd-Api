@@ -36,7 +36,7 @@ paymentRouter.post("/payment/create", authUser, async (req, res) => {
     res.json({ ...savedPayment.toJSON(), keyId: process.env.RAZORPAY_KEY_ID });
   } catch (error) {
     console.error("Payment creation error:", error);
-   
+
     res.status(500).json({ message: error.message });
   }
 });
@@ -100,14 +100,14 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
     // Handle Payment Events
     if (event === "payment.captured") {
       console.log("✅ Payment Captured:", paymentData.amount);
-    await  sendEmail(
+      await sendEmail(
         "ns048019@gmail.com",
         "Payment Status",
         `Hi ${user.name}, your payment of Rs ${paymentData.amount} has been captured successfully`
       );
     } else if (event === "payment.failed") {
       console.log("❌ Payment Failed:", paymentData.amount);
-     await sendEmail(
+      await sendEmail(
         "ns048019@gmail.com",
         "Payment Status",
         `Hi ${user.name}, your payment of Rs ${paymentData.amount} has failed`
@@ -120,13 +120,15 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
     res.status(500).json({ error: "Webhook processing failed" });
   }
 });
-paymentRouter.get("/premium/verify" , authUser, async (req,res) => {
+paymentRouter.get("/premium/verify", authUser, async (req, res) => {
   try {
-    
-  } catch (error) {
-    
-  }
-  
-})
+    const user = req.user;
+    if(user.isPremium){
+      res.json({isPremium: true, membershipType: user.membershipType});
+    }else{
+      res.json({isPremium: false});
+    }
+  } catch (error) {}
+});
 
 module.exports = paymentRouter;
