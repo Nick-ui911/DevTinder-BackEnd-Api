@@ -17,36 +17,55 @@ const initializeSocket = (server) => {
       origin: "http://localhost:5173",
     },
   });
-  io.on("connection", (socket) => {
 
+  // ✅ Maintain a global array of online users
+  let onlineUsers = [];
+
+  io.on("connection", (socket) => {
+    // console.log("New user connected");
+
+    // ✅ When user comes online
+    socket.on("userOnline", (userId) => {
+      if (!onlineUsers.includes(userId)) {
+        onlineUsers.push(userId);
+      }
+      io.emit("updateOnlineUsers", onlineUsers); // Send online users to all clients
+      // console.log("Online Users:", onlineUsers);
+    });
+
+    // ✅ When user goes offline
+    socket.on("userOffline", (userId) => {
+      onlineUsers = onlineUsers.filter((id) => id !== userId);
+      io.emit("updateOnlineUsers", onlineUsers); // Send updated list to all clients
+    });
+
+    // ✅ Joining chat room
     socket.on("joinChat", ({ name, userId, connectionUserId, time, date }) => {
       const roomId = getSecretRoomId(userId, connectionUserId);
-      //   console.log(name + "join the chat" + roomId + "-" + time + "-" + date);
       socket.join(roomId);
     });
 
-    // here in this event we have to save mesage in database when someone sends a message
+    // ✅ Sending message
     socket.on(
       "sendMessage",
       async ({ name, userId, connectionUserId, text, time, date }) => {
         try {
           const roomId = getSecretRoomId(userId, connectionUserId);
-          // console.log(name + "  " + text + "_" + time + " " + date);
 
-                // ✅ Check if connection exists in either direction
-      const connectionExists = await ConnectionRequest.findOne({
-        $or: [
-          { fromUserId: userId, toUserId: connectionUserId, status: "accepted" },
-          { fromUserId: connectionUserId, toUserId: userId, status: "accepted" }
-        ]
-      });
+          // ✅ Check if connection exists
+          const connectionExists = await ConnectionRequest.findOne({
+            $or: [
+              { fromUserId: userId, toUserId: connectionUserId, status: "accepted" },
+              { fromUserId: connectionUserId, toUserId: userId, status: "accepted" },
+            ],
+          });
 
-      if (!connectionExists) {
-        console.log("You are not connected with this user.");
-        return; // Don't allow message sending if not connected
-      }
+          if (!connectionExists) {
+            console.log("You are not connected with this user.");
+            return; 
+          }
 
-          //   saving from here, a message in database
+          // ✅ Save message to DB
           let chat = await Chat.findOne({
             participants: { $all: [userId, connectionUserId] },
           });
@@ -57,29 +76,36 @@ const initializeSocket = (server) => {
               messages: [],
             });
           }
+
           chat.messages.push({
             senderId: userId,
             text,
             time,
             date,
           });
+
           await chat.save();
-          io.to(roomId).emit("messageReceived", { name, text, time, date,senderId: userId,  });
+
+          // ✅ Emit message to specific room
+          io.to(roomId).emit("messageReceived", {
+            name,
+            text,
+            time,
+            date,
+            senderId: userId,
+          });
         } catch (error) {
           console.log(error);
         }
       }
     );
-    socket.on("typing", ({ roomId }) => {
-      socket.to(roomId).emit("userTyping", { typing: true });
-      console.log("User is typing in room:", roomId);
+
+
+    // ✅ When user disconnects
+    socket.on("disconnect", () => {
+      console.log("User disconnected");
     });
-    
-    socket.on("stopTyping", ({ roomId }) => {
-      socket.to(roomId).emit("userTyping", { typing: false });
-    });
-    
-    socket.on("disconnect", () => {});
   });
 };
+
 module.exports = initializeSocket;
