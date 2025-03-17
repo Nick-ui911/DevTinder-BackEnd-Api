@@ -103,7 +103,7 @@ const initializeSocket = (server) => {
 
     // ✅ When user disconnects
     socket.on("disconnect", () => {
-      console.log("User disconnected");
+      // console.log("User disconnected");
     });
   });
 };
