@@ -128,7 +128,10 @@ paymentRouter.get("/premium/verify", authUser, async (req, res) => {
     }else{
       res.json({isPremium: false});
     }
-  } catch (error) {}
+  } catch (error) {
+    console.error("🚨 Error:", error);
+    res.status(500).json({ error: "Failed to verify premium status" });
+  }
 });
 
 module.exports = paymentRouter;
