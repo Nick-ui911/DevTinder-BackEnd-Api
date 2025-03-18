@@ -37,7 +37,7 @@ profileRouter.patch("/profile/edit", authUser, async (req, res) => {
       data: user,
     });
 
-    console.log("Updated user:", user);
+    // console.log("Updated user:", user);
   } catch (error) {
     console.error("Error:", error.message);
     res.status(400).send(`Error: ${error.message}`);
@@ -46,39 +46,40 @@ profileRouter.patch("/profile/edit", authUser, async (req, res) => {
 
 profileRouter.patch("/profile/password", authUser, async (req, res) => {
   try {
-    if (!req.body || !req.body.password) {
-      return res.status(400).send("Password is required.");
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: "Both old and new passwords are required." });
     }
 
-    const { password } = req.body;
-    console.log("Received password:", password);  // Log the password received
-
-    // Validate password
-    ValidatePassword(password);
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = req.user; // This should now be defined
-
+    const user = req.user; // Retrieved from auth middleware
     if (!user) {
-      return res.status(400).send("User not found.");
+      return res.status(400).json({ message: "User not found." });
     }
 
-    // Update password
+    // Compare old password
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Old password is incorrect." });
+    }
+
+    // Validate new password
+    ValidatePassword(newPassword);
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
     await user.save();
 
     res.json({
       message: "Password updated successfully",
-      data: user,
     });
   } catch (error) {
     console.error("Error:", error.message);
-    res.status(400).send(`Error: ${error.message}`);
+    res.status(400).json({ message: `Error: ${error.message}` });
   }
 });
-
-
-
-
 
 module.exports = profileRouter;
