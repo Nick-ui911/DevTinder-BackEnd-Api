@@ -55,14 +55,22 @@ const initializeSocket = (server) => {
           // ✅ Check if connection exists
           const connectionExists = await ConnectionRequest.findOne({
             $or: [
-              { fromUserId: userId, toUserId: connectionUserId, status: "accepted" },
-              { fromUserId: connectionUserId, toUserId: userId, status: "accepted" },
+              {
+                fromUserId: userId,
+                toUserId: connectionUserId,
+                status: "accepted",
+              },
+              {
+                fromUserId: connectionUserId,
+                toUserId: userId,
+                status: "accepted",
+              },
             ],
           });
 
           if (!connectionExists) {
             console.log("You are not connected with this user.");
-            return; 
+            return;
           }
 
           // ✅ Save message to DB
@@ -100,10 +108,9 @@ const initializeSocket = (server) => {
       }
     );
 
-
     // ✅ When user disconnects
     socket.on("disconnect", () => {
-      // console.log("User disconnected");
+      console.log("User disconnected");
     });
   });
 };
