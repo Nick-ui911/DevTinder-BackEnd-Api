@@ -68,7 +68,7 @@ userRouter.get("/feed", authUser, async (req, res) => {
         { _id: { $nin: Array.from(hideUserSFromFeed) } },
         { _id: { $ne: loggedInUser._id } },
       ],
-    }).select(["name", "gender", "age", "PhotoUrl", "skills"]);
+    }).select(["name", "gender", "age", "PhotoUrl", "skills","description","location"]);
     // .skip(skip)
     // .limit(limit);
     res.json({ data: users });

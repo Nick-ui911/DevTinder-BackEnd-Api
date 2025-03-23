@@ -31,7 +31,6 @@ const userSchema = new mongoose.Schema(
     },
     age: {
       type: Number,
-      default: 50,
     },
     gender: {
       type: String,
@@ -52,13 +51,18 @@ const userSchema = new mongoose.Schema(
         }
       },
     },
-    isPremium:{
-      type:Boolean,
-      default:false
+    description: {
+      type: String,
     },
-    membershipType:{
-      type:String,
-      
+    location:{
+      type: String,
+    },
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
+    membershipType: {
+      type: String,
     },
   },
   {

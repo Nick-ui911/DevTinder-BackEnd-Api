@@ -16,7 +16,7 @@ const validateData = (req)=>{
 };
 
 const validateEditData = (req)=>{
-    const allowedFields = ["name", "age", "gender", "skills"," PhotoUrl"]; // Allowed fields for editing
+    const allowedFields = ["name", "age", "gender", "skills"," PhotoUrl","description","location"]; // Allowed fields for editing
     const updates = Object.keys(req.body); // Extract keys from the request body
     
     // Check if all fields in the request are allowed
