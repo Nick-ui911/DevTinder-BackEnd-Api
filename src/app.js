@@ -26,6 +26,7 @@ const userRouter = require("./routes/user");
 const paymentRouter = require("./routes/payment");
 const initializeSocket = require("./utils/socket");
 const chatRouter = require("./routes/chat");
+const mailAuthRouter = require("./routes/nodeMailer")
 
 app.use("/", authRouter);
 app.use("/", profileRouter);
@@ -33,6 +34,7 @@ app.use("/", requestRouter);
 app.use("/", userRouter);
 app.use("/", paymentRouter);
 app.use("/", chatRouter);
+app.use("/",mailAuthRouter)
 app.get("/test-cors", cors(corsOptions), (req, res) => {
   res.json({ message: "CORS is working!" });
 });
