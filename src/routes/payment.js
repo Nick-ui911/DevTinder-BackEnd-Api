@@ -44,21 +44,21 @@ paymentRouter.post("/payment/create", authUser, async (req, res) => {
 
 paymentRouter.post("/payment/webhook", async (req, res) => {
   try {
-    console.log("📌 Webhook received at:", new Date().toISOString());
+    // console.log("📌 Webhook received at:", new Date().toISOString());
 
     const secret = process.env.RAZORPAY_WEB_HOOK_SECRET_KEY;
     const signature = req.get("x-razorpay-signature");
     const body = JSON.stringify(req.body);
 
-    console.log("📌 Webhook Body:", body);
-    console.log("📌 Received Signature:", signature);
+    // console.log("📌 Webhook Body:", body);
+    // console.log("📌 Received Signature:", signature);
 
     // Validate webhook signature
     const isValid = Razorpay.validateWebhookSignature(body, signature, secret);
-    console.log("📌 Signature Valid:", isValid);
+    // console.log("📌 Signature Valid:", isValid);
 
     if (!isValid) {
-      console.error("❌ Invalid webhook signature");
+      // console.error("❌ Invalid webhook signature");
       return res.status(400).json({ message: "Invalid webhook signature" });
     }
 
@@ -66,8 +66,8 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
     const paymentData = req.body.payload.payment.entity;
     const event = req.body.event;
 
-    console.log("📌 Payment Data:", paymentData);
-    console.log("📌 Event:", event);
+    // console.log("📌 Payment Data:", paymentData);
+    // console.log("📌 Event:", event);
 
     // Find and update payment in DB
     const payment = await Payment.findOne({ orderId: paymentData.order_id });
@@ -77,11 +77,11 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
       return res.status(404).json({ message: "Payment not found" });
     }
 
-    console.log("📌 Payment Found:", payment);
+    // console.log("📌 Payment Found:", payment);
 
     payment.status = paymentData.status;
     await payment.save();
-    console.log("📌 Payment Status Updated:", payment.status);
+    // console.log("📌 Payment Status Updated:", payment.status);
 
     // Find and update user based on payment
     const user = await User.findOne({ _id: payment.userId });
@@ -96,26 +96,35 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
     user.isPremium = true;
     user.membershipType = payment.notes.membershipType;
     await user.save();
-    console.log("📌 User Premium Updated:", user.isPremium);
+    // console.log("📌 User Premium Updated:", user.isPremium);
 
     const mailOptions = {
       from: process.env.EMAIL_ADMIN, // Always send from your own email
-      to: user.email, // Your receiving email
-      subject: `Payment Status`,
-      text: `${user.name} we Got your Payment for ${payment.notes.membershipType} membership`,
+      to: user.email, // User's email
+      subject: "Payment Confirmation - Thank You for Your Purchase!",
+      text: `Dear ${user.name},
+    
+    We are pleased to inform you that we have successfully received your payment for the **${payment.notes.membershipType}** membership.
+    
+    Thank you for choosing our service! Your premium benefits are now active. If you have any questions, feel free to reach out to our support team.
+    
+    Best regards,  
+    DevTinder Team`,
     };
+
     // Handle Payment Events
     if (event === "payment.captured") {
       await transporter.sendMail(mailOptions);
-      console.log("✅ Payment Captured:", paymentData.amount);
+      // console.log("✅ Payment Captured:", paymentData.amount);
 
-      await sendEmail(
-        "ns048019@gmail.com",
-        "Payment Status",
-        `Hi ${user.name}, your payment of Rs ${
-          paymentData.amount / 100
-        } has been captured successfully`
-      );
+      //  sending mail using aws ses
+      // await sendEmail(
+      //   "ns048019@gmail.com",
+      //   "Payment Status",
+      //   `Hi ${user.name}, your payment of Rs ${
+      //     paymentData.amount / 100
+      //   } has been captured successfully`
+      // );
     } else if (event === "payment.failed") {
       console.log("❌ Payment Failed:", paymentData.amount);
       await sendEmail(

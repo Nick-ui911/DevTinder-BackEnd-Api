@@ -7,15 +7,34 @@ mailAuthRouter.post("/send-email", async (req, res) => {
 
   const mailOptions = {
     from: process.env.EMAIL_ADMIN, // Always send from your own email
-    to: process.env.EMAIL_SUPPORT, // Your receiving email
-    subject: `User Try To Contact Us.`,
-    text: `${name} have this issue : ${message} and email: ${email}`,
+    to: process.env.EMAIL_SUPPORT, // Support team's email
+    subject: "New User Inquiry - Support Request",
+    text: `Hello Support Team,
+  
+  A user has submitted a contact request with the following details:
+  
+  - **Name:** ${name}
+  - **Email:** ${email}
+  - **Issue:** ${message}
+  
+  Please look into this and respond to the user at your earliest convenience.
+  
+  Best regards,  
+  DevTinder Team`,
   };
+
   const mailOptions2 = {
     from: process.env.EMAIL_ADMIN, // Always send from your own email
-    to: email, // Your receiving email
-    subject: `User Try To Contact Us.`,
-    text: `We have received your message and we will contact you soon, And Try to Solve Problem as soon as possible`,
+    to: email, // User's email
+    subject: "We Have Received Your Inquiry",
+    text: `Dear ${name},
+  
+  Thank you for reaching out to us. We have received your message and our support team will review your issue as soon as possible. We will get back to you shortly with a response.
+  
+  If you need immediate assistance, please feel free to contact our support team at ${process.env.EMAIL_SUPPORT}.
+  
+  Best regards,  
+  DevTinder Team`,
   };
 
   try {
