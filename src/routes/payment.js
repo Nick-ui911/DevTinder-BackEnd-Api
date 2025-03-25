@@ -7,6 +7,7 @@ const membershipAmount = require("../utils/constant");
 const User = require("../models/user");
 const { sendEmail } = require("../utils/sendEmail");
 const Razorpay = require("razorpay");
+const transporter = require("../utils/nodeMailerConfig");
 
 paymentRouter.post("/payment/create", authUser, async (req, res) => {
   try {
@@ -97,20 +98,32 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
     await user.save();
     console.log("📌 User Premium Updated:", user.isPremium);
 
+    const mailOptions = {
+      from: process.env.EMAIL_ADMIN, // Always send from your own email
+      to: user.email, // Your receiving email
+      subject: `Payment Status`,
+      text: `${user.name} we Got your Payment for ${payment.notes.membershipType} membership`,
+    };
     // Handle Payment Events
     if (event === "payment.captured") {
+      await transporter.sendMail(mailOptions);
       console.log("✅ Payment Captured:", paymentData.amount);
+
       await sendEmail(
         "ns048019@gmail.com",
         "Payment Status",
-        `Hi ${user.name}, your payment of Rs ${(paymentData.amount)/100} has been captured successfully`
+        `Hi ${user.name}, your payment of Rs ${
+          paymentData.amount / 100
+        } has been captured successfully`
       );
     } else if (event === "payment.failed") {
       console.log("❌ Payment Failed:", paymentData.amount);
       await sendEmail(
         "ns048019@gmail.com",
         "Payment Status",
-        `Hi ${user.name}, your payment of Rs ${(paymentData.amount)/100} has failed`
+        `Hi ${user.name}, your payment of Rs ${
+          paymentData.amount / 100
+        } has failed`
       );
     }
 
@@ -123,10 +136,10 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
 paymentRouter.get("/premium/verify", authUser, async (req, res) => {
   try {
     const user = req.user;
-    if(user.isPremium){
-      res.json({isPremium: true, membershipType: user.membershipType});
-    }else{
-      res.json({isPremium: false});
+    if (user.isPremium) {
+      res.json({ isPremium: true, membershipType: user.membershipType });
+    } else {
+      res.json({ isPremium: false });
     }
   } catch (error) {
     console.error("🚨 Error:", error);

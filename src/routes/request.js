@@ -5,6 +5,8 @@ const { authUser } = require("../middleware/authuser");
 const User = require("../models/user");
 const ConnectionRequest = require("../models/connectionRequest");
 const { sendEmail } = require("../utils/sendEmail");
+const transporter = require("../utils/nodeMailerConfig");
+
 
 // requestRouter.post(
 //   "/request/send/:status/:toUserId",
@@ -111,13 +113,22 @@ requestRouter.post(
       });
 
       const data = await connectionRequest.save();
+      const mailOptions = {
+        from: process.env.EMAIL_ADMIN, // Must be your verified email
+        to: toUser.email, // ✅ Fixed: Use `toUser.email` instead of `user.email`
+        subject: `New Connection Request`,
+        text: `Hello ${toUser.name},\n\nYou have a new connection request from ${req.user.name}. Please check your dashboard to respond.\n\nBest regards,\nDevTinder Team`,
+      };
+     if(status !== "ignored"){
+      await transporter.sendMail(mailOptions);
 
-      // Send email notification
-      await sendEmail(
-       "nbaghel392@gmail.com", // Recipient email
-        "New Connection Request", // Subject
-        `Hello ${toUser.name},\n\nYou have a new connection request from ${req.user.name}. Please check your dashboard to respond.\n\nBest regards,\nDevTinder Team`
-      );
+     }
+      // // Send email notification using AWS ses
+      // await sendEmail(
+      //  "nbaghel392@gmail.com", // Recipient email
+      //   "New Connection Request", // Subject
+      //   `Hello ${toUser.name},\n\nYou have a new connection request from ${req.user.name}. Please check your dashboard to respond.\n\nBest regards,\nDevTinder Team`
+      // );
 
       res.json({
         message: "Connection request sent successfully & email notification sent",

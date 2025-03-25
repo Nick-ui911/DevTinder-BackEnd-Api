@@ -7,10 +7,10 @@ const validateData = (req)=>{
     if(!name){
         throw new Error("Name is required");
     }else if(!validator.isEmail(email)){
-        throw new Error(" bhai galat hai email");
+        throw new Error("Please Add valid Email");
 
     }else if(!validator.isStrongPassword(password)){
-        throw new Error("kamjor hai password");
+        throw new Error("Please Add Strong Password");
     }
 
 };
