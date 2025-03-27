@@ -126,7 +126,7 @@ const initializeSocket = (server) => {
 
     // ✅ When user disconnects
     socket.on("disconnect", () => {
-      // console.log("User disconnected");
+      console.log("User disconnected");
     });
   });
 };
@@ -137,10 +137,14 @@ const sendPushNotification = async (fcmToken, senderName, messageText) => {
   const message = {
     token: fcmToken,
     notification: {
-      title: `New message from ${senderName}`,
-      body: messageText,
+      title: title,
+      body: body,
+      icon: "/logodevworld.jpg", // ✅ Ensure the icon is included
     },
-    data: { click_action: "FLUTTER_NOTIFICATION_CLICK" },
+    data: {
+      click_action: "FLUTTER_NOTIFICATION_CLICK", // Helps in handling notification clicks
+      messageId: new Date().getTime().toString(), // Prevents duplicate notifications
+    },
   };
 
   try {
