@@ -1,4 +1,6 @@
 node_modules
 .env
 cronJob.js
+src/config/serviceAccountKey.json
+
 
