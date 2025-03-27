@@ -3,6 +3,16 @@ const crypto = require("crypto");
 const { Chat } = require("../models/chat");
 const ConnectionRequest = require("../models/connectionRequest");
 
+var admin = require("firebase-admin");
+
+var serviceAccount = require("../config/serviceAccountKey.json");
+const User = require("../models/user");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+
 const getSecretRoomId = (userId, connectionUserId) => {
   const secretRoomId = crypto
     .createHash("sha256")
@@ -102,6 +112,12 @@ const initializeSocket = (server) => {
             date,
             senderId: userId,
           });
+
+          // ✅ Fetch FCM token of recipient
+          const recipient = await User.findById(connectionUserId);
+          if (recipient && recipient.fcmToken) {
+            sendPushNotification(recipient.fcmToken, name, text);
+          }
         } catch (error) {
           console.log(error);
         }
@@ -110,9 +126,29 @@ const initializeSocket = (server) => {
 
     // ✅ When user disconnects
     socket.on("disconnect", () => {
-      console.log("User disconnected");
+      // console.log("User disconnected");
     });
   });
+};
+
+
+// Function to send push notifications
+const sendPushNotification = async (fcmToken, senderName, messageText) => {
+  const message = {
+    token: fcmToken,
+    notification: {
+      title: `New message from ${senderName}`,
+      body: messageText,
+    },
+    data: { click_action: "FLUTTER_NOTIFICATION_CLICK" },
+  };
+
+  try {
+    await admin.messaging().send(message);
+    console.log("Push notification sent successfully.");
+  } catch (error) {
+    console.error("Error sending push notification:", error);
+  }
 };
 
 module.exports = initializeSocket;

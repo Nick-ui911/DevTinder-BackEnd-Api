@@ -54,7 +54,7 @@ const userSchema = new mongoose.Schema(
     description: {
       type: String,
     },
-    location:{
+    location: {
       type: String,
     },
     isPremium: {
@@ -62,6 +62,9 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
     membershipType: {
+      type: String,
+    },
+    fcmToken: {
       type: String,
     },
   },

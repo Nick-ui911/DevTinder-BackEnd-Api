@@ -67,12 +67,33 @@ userRouter.get("/feed", authUser, async (req, res) => {
         { _id: { $nin: Array.from(hideUserSFromFeed) } },
         { _id: { $ne: loggedInUser._id } },
       ],
-    }).select(["name", "gender", "age", "PhotoUrl", "skills","description","location"]);
+    }).select([
+      "name",
+      "gender",
+      "age",
+      "PhotoUrl",
+      "skills",
+      "description",
+      "location",
+    ]);
     // .skip(skip)
     // .limit(limit);
     res.json({ data: users });
   } catch (error) {
     res.status(400).send("Error : " + error.message);
+  }
+});
+
+// for firebase cloud messaging
+
+userRouter.post("/update-fcm-token", authUser, async (req, res) => {
+  const { userId, fcmToken } = req.body;
+
+  try {
+    await User.findByIdAndUpdate(userId, { fcmToken });
+    res.json({ success: true, message: "FCM token updated successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to update token" });
   }
 });
 
