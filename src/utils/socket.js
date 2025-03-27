@@ -2,16 +2,18 @@ const socket = require("socket.io");
 const crypto = require("crypto");
 const { Chat } = require("../models/chat");
 const ConnectionRequest = require("../models/connectionRequest");
+const dotenv = require("dotenv");
+
+dotenv.config();
 
 var admin = require("firebase-admin");
 
-var serviceAccount = require("../config/serviceAccountKey.json");
+const serviceAccount = JSON.parse(process.env.GOOGLE_CLOUD_CREDENTIALS);
 const User = require("../models/user");
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(serviceAccount),
 });
-
 
 const getSecretRoomId = (userId, connectionUserId) => {
   const secretRoomId = crypto
@@ -131,7 +133,6 @@ const initializeSocket = (server) => {
   });
 };
 
-
 // Function to send push notifications
 const sendPushNotification = async (fcmToken, senderName, messageText) => {
   const message = {
@@ -149,7 +150,7 @@ const sendPushNotification = async (fcmToken, senderName, messageText) => {
 
   try {
     await admin.messaging().send(message);
-    console.log("Push notification sent successfully."); 
+    console.log("Push notification sent successfully.");
   } catch (error) {
     console.error("Error sending push notification:", error);
   }
