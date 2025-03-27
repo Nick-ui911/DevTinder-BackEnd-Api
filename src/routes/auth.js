@@ -66,8 +66,8 @@ authRouter.post("/login", async (req, res) => {
     const token = await user.getJWT(); // Removed unnecessary `await` as `getJWT()` is synchronous
     // console.log(token);
     // Set the cookie with the token
-    res.cookie("token", token, { 
-      expires: new Date(Date.now() + 8 * 3600000), // 8 hours expiration
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days expiration
     });
 
     // Successful login

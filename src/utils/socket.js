@@ -141,12 +141,10 @@ const sendPushNotification = async (fcmToken, senderName, messageText,connection
     notification: {
       title: `New message from ${senderName}`,
       body: messageText,
-     
     },
     data: {
       click_action: `/chat/${connectionUserId}`, // Helps in handling notification clicks
       messageId: new Date().getTime().toString(), // Prevents duplicate notifications
-     
     },
   };
 
