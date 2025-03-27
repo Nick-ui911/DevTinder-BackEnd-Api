@@ -2,18 +2,16 @@ const socket = require("socket.io");
 const crypto = require("crypto");
 const { Chat } = require("../models/chat");
 const ConnectionRequest = require("../models/connectionRequest");
-const dotenv = require("dotenv");
-
-dotenv.config();
 
 var admin = require("firebase-admin");
 
-const serviceAccount = JSON.parse(process.env.GOOGLE_CLOUD_CREDENTIALS);
+var serviceAccount = require("../config/serviceAccountKey.json");
 const User = require("../models/user");
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert(serviceAccount)
 });
+
 
 const getSecretRoomId = (userId, connectionUserId) => {
   const secretRoomId = crypto
@@ -128,18 +126,19 @@ const initializeSocket = (server) => {
 
     // ✅ When user disconnects
     socket.on("disconnect", () => {
-      console.log("User disconnected");
+      // console.log("User disconnected");
     });
   });
 };
+
 
 // Function to send push notifications
 const sendPushNotification = async (fcmToken, senderName, messageText) => {
   const message = {
     token: fcmToken,
     notification: {
-      title: title,
-      body: body,
+      title: `New message from ${senderName}`,
+      body: messageText,
       icon: "/logodevworld.jpg", // ✅ Ensure the icon is included
     },
     data: {
