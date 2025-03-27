@@ -118,7 +118,7 @@ const initializeSocket = (server) => {
           // ✅ Fetch FCM token of recipient
           const recipient = await User.findById(connectionUserId);
           if (recipient && recipient.fcmToken) {
-            sendPushNotification(recipient.fcmToken, name, text);
+            sendPushNotification(recipient.fcmToken, name, text,connectionUserId);
           }
         } catch (error) {
           console.log(error);
@@ -135,7 +135,7 @@ const initializeSocket = (server) => {
 
 
 // Function to send push notifications
-const sendPushNotification = async (fcmToken, senderName, messageText) => {
+const sendPushNotification = async (fcmToken, senderName, messageText,connectionUserId) => {
   const message = {
     token: fcmToken,
     notification: {
@@ -143,7 +143,7 @@ const sendPushNotification = async (fcmToken, senderName, messageText) => {
       body: messageText,
     },
     data: {
-      click_action: "FLUTTER_NOTIFICATION_CLICK", // Helps in handling notification clicks
+      click_action: `/chat/${connectionUserId}`, // Helps in handling notification clicks
       messageId: new Date().getTime().toString(), // Prevents duplicate notifications
     },
   };
