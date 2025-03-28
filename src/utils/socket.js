@@ -9,11 +9,9 @@ var admin = require("firebase-admin");
 
 const serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
 
-
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(serviceAccount),
 });
-
 
 const getSecretRoomId = (userId, connectionUserId) => {
   const secretRoomId = crypto
@@ -118,7 +116,12 @@ const initializeSocket = (server) => {
           // ✅ Fetch FCM token of recipient
           const recipient = await User.findById(connectionUserId);
           if (recipient && recipient.fcmToken) {
-            sendPushNotification(recipient.fcmToken, name, text,connectionUserId);
+            sendPushNotification(
+              recipient.fcmToken,
+              name,
+              text,
+              connectionUserId
+            );
           }
         } catch (error) {
           console.log(error);
@@ -133,13 +136,13 @@ const initializeSocket = (server) => {
   });
 };
 
-
 // Function to send push notifications
-const sendPushNotification = async (fcmToken, senderName, messageText,connectionUserId) => {
+const sendPushNotification = async (fcmToken, senderName, messageText, connectionUserId) => {
   if (!fcmToken) {
     console.error("❌ No FCM Token found. Notification not sent.");
     return;
   }
+
   const message = {
     token: fcmToken,
     notification: {
@@ -147,17 +150,23 @@ const sendPushNotification = async (fcmToken, senderName, messageText,connection
       body: messageText,
     },
     data: {
-      click_action: `https://devworld.in//chat/${connectionUserId}`, // Helps in handling notification clicks
-      messageId: new Date().getTime().toString(), // Prevents duplicate notifications
+      click_action: `https://devworld.in/chat/${connectionUserId}`,
+      messageId: new Date().getTime().toString(),
     },
   };
 
   try {
-    await admin.messaging().send(message);
-    console.log("Push notification sent successfully.");
+    const response = await admin.messaging().send(message);
+    console.log("✅ Push notification sent successfully:", response);
   } catch (error) {
-    console.error("Error sending push notification:", error);
+    console.error("❌ Error sending push notification:", error);
+
+    if (error.code === "messaging/registration-token-not-registered") {
+      console.warn("⚠️ Removing expired FCM token:", fcmToken);
+      await User.updateOne({ fcmToken }, { $unset: { fcmToken: 1 } });
+    }
   }
 };
+
 
 module.exports = initializeSocket;
