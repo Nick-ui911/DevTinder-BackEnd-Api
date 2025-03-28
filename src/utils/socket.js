@@ -133,18 +133,20 @@ const initializeSocket = (server) => {
   });
 };
 
-
+// yaha change hua hai
 // Function to send push notifications
 const sendPushNotification = async (fcmToken, senderName, messageText,connectionUserId) => {
+  if (!fcmToken) {
+    console.error("❌ No FCM Token found. Notification not sent.");
+    return;
+  }
   const message = {
     token: fcmToken,
-    notification: {
+    data: { // ✅ Only use "data" to avoid duplicate notifications
       title: `New message from ${senderName}`,
       body: messageText,
-    },
-    data: {
-      click_action: `/chat/${connectionUserId}`, // Helps in handling notification clicks
-      messageId: new Date().getTime().toString(), // Prevents duplicate notifications
+      click_action: `https://devworld.in/chat/${connectionUserId}`, // ✅ Full URL for proper redirection
+      messageId: new Date().getTime().toString(),
     },
   };
 
