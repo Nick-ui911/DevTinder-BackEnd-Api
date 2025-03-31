@@ -143,15 +143,26 @@ const sendPushNotification = async (fcmToken, senderName, messageText, connectio
     return;
   }
 
+
   const message = {
     token: fcmToken,
-    notification: {
+    notification: { // ✅ Used for Background Notifications
       title: `New message from ${senderName}`,
       body: messageText,
     },
-    data: {
+    data: { // ✅ Used for Foreground Notifications (Handled Manually)
+      title: `New message from ${senderName}`,
+      body: messageText,
       click_action: `https://devworld.in/chat/${connectionUserId}`,
       messageId: new Date().getTime().toString(),
+    },
+    webpush: { // ✅ Ensures proper click action in background
+      notification: {
+        title: `New message from ${senderName}`,
+        body: messageText,
+        icon: "https://devworld.in/logodevworld.png", // ✅ Ensure this is a valid URL
+        click_action: `https://devworld.in/chat/${connectionUserId}`, // ✅ Clicking notification opens this URL
+      },
     },
   };
 
