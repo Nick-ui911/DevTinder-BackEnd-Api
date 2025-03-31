@@ -168,7 +168,7 @@ const sendPushNotification = async (fcmToken, senderName, messageText, connectio
 
   try {
     const response = await admin.messaging().send(message);
-    console.log("✅ Push notification sent successfully:", response);
+    // console.log("✅ Push notification sent successfully:", response);
   } catch (error) {
     console.error("❌ Error sending push notification:", error);
 
