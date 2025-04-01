@@ -10,7 +10,7 @@ var admin = require("./firebaseAdmin");
 const getSecretRoomId = (userId, connectionUserId) => {
   const secretRoomId = crypto
     .createHash("sha256")
-    .update([userId, connectionUserId].sort().join("_"))
+    .update([userId, connectionUserId].sort().join("_")) 
     .digest("hex");
   return secretRoomId;
 };
