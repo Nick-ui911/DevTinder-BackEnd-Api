@@ -10,8 +10,14 @@ authRouter.post("/signup", async (req, res) => {
   try {
     validateData(req);
     const { name, email, age, password, gender, PhotoUrl, skills } = req.body;
+
+    // 🔹 Check if the email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
     const hashPassword = await bcrypt.hash(password, 10);
-    console.log(hashPassword);
+    // console.log(hashPassword);
 
     // create a new instance of user model
     const user = new User({
@@ -33,6 +39,51 @@ authRouter.post("/signup", async (req, res) => {
     res.cookie("token", token, {
       expires: new Date(Date.now() + 8 * 3600000), // 8 hours expiration
     });
+    res.json({
+      message: "User created successfully",
+      data: savedUser,
+    });
+  } catch (error) {
+    console.error("Error saving user:", error.message);
+    res.status(500).send("Failed to save user data.");
+  }
+});
+authRouter.post("/google-signup", async (req, res) => {
+  try {
+
+    const { name, email, age, password, gender } = req.body;
+
+    // Check if the email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+    // Hash the password (even if the user logged in through Google, we still need to store a password)
+    const hashPassword = await bcrypt.hash(password, 10);
+
+    // Create a new user instance
+    const user = new User({
+      name,
+      email,
+      password: hashPassword,
+      age,
+      gender,
+  
+    });
+
+    // Save the user to the database
+    const savedUser = await user.save();
+
+    // Generate a JWT token
+    const token = await savedUser.getJWT();
+
+    // Set the cookie with the token
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 8 * 3600000), // 8 hours expiration
+    });
+
+    // Respond with success message and user data
     res.json({
       message: "User created successfully",
       data: savedUser,
