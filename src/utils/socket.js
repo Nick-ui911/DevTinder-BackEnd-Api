@@ -5,13 +5,7 @@ const { Chat } = require("../models/chat");
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
 
-var admin = require("firebase-admin");
-
-const serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
+var admin = require("./firebaseAdmin");
 
 const getSecretRoomId = (userId, connectionUserId) => {
   const secretRoomId = crypto

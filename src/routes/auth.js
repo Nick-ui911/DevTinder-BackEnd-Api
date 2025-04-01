@@ -1,13 +1,15 @@
+require("dotenv").config();
 const express = require("express");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const { validateData } = require("../utils/validation");
 const authRouter = express.Router();
+const admin = require("../utils/firebaseAdmin");
 
 authRouter.post("/signup", async (req, res) => {
   try {
     validateData(req);
-    const { name, email,age, password, gender, PhotoUrl,skills } = req.body;
+    const { name, email, age, password, gender, PhotoUrl, skills } = req.body;
     const hashPassword = await bcrypt.hash(password, 10);
     console.log(hashPassword);
 
@@ -22,18 +24,18 @@ authRouter.post("/signup", async (req, res) => {
       skills,
     });
 
-   const savedUser =  await user.save(); // Save the user to the database
+    const savedUser = await user.save(); // Save the user to the database
 
-      // Generate a JWT token
-      const token = await savedUser.getJWT(); // Removed unnecessary `await` as `getJWT()` is synchronous
-      // console.log(token);
-      // Set the cookie with the token
-      res.cookie("token", token, { 
-        expires: new Date(Date.now() + 8 * 3600000), // 8 hours expiration
-      });
+    // Generate a JWT token
+    const token = await savedUser.getJWT(); // Removed unnecessary `await` as `getJWT()` is synchronous
+    // console.log(token);
+    // Set the cookie with the token
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 8 * 3600000), // 8 hours expiration
+    });
     res.json({
       message: "User created successfully",
-      data: savedUser
+      data: savedUser,
     });
   } catch (error) {
     console.error("Error saving user:", error.message);
@@ -79,9 +81,43 @@ authRouter.post("/login", async (req, res) => {
     return res.status(500).send("Internal server error");
   }
 });
-authRouter.post("/logout",async(req,res)=>{
-    res.cookie("token",null,{ expires: new Date(Date.now())});
-    res.send("Logout succesfull")
-})
+authRouter.post("/google-login", async (req, res) => {
+  try {
+    const { idToken } = req.body;
+
+    // ✅ Verify Google ID token
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const email = decodedToken.email; // Extract email from the decoded token
+
+    if (!email) throw new Error("Invalid token");
+
+    // Find the user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    // Generate a JWT token
+    const token = await user.getJWT(); // Removed unnecessary `await` as `getJWT()` is synchronous
+
+    // Set the cookie with the token
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days expiration
+    });
+
+    // Successful login
+    return res.status(200).send(user);
+  } catch (error) {
+    console.error("Error during login:", error.message);
+
+    // Handle unexpected errors
+    return res.status(500).send("Internal server error");
+  }
+});
+
+authRouter.post("/logout", async (req, res) => {
+  res.cookie("token", null, { expires: new Date(Date.now()) });
+  res.send("Logout succesfull");
+});
 
 module.exports = authRouter;
