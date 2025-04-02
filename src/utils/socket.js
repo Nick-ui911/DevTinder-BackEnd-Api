@@ -158,6 +158,9 @@ const sendPushNotification = async (fcmToken, senderName, messageText, connectio
         click_action: `https://devworld.in/chat/${connectionUserId}`, // ✅ Clicking notification opens this URL
       },
     },
+    fcm_options: {
+      link: `https://devworld.in/chat/${connectionUserId}` // ✅ Ensures proper redirection
+    }
   };
 
   try {
