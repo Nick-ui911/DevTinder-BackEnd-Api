@@ -22,31 +22,32 @@ const initializeSocket = (server) => {
     },
   });
 
+  // ✅ Maintain a global array of online users
   let onlineUsers = [];
 
   io.on("connection", (socket) => {
-    console.log(`🔵 New user connected: ${socket.id}`);
+    // console.log("New user connected");
 
+    // ✅ When user comes online
     socket.on("userOnline", (userId) => {
       if (!onlineUsers.includes(userId)) {
         onlineUsers.push(userId);
       }
-      io.emit("updateOnlineUsers", onlineUsers);
-      console.log("✅ Online Users:", onlineUsers);
+      io.emit("updateOnlineUsers", onlineUsers); // Send online users to all clients
+      // console.log("Online Users:", onlineUsers);
     });
 
+    // ✅ When user goes offline
     socket.on("userOffline", (userId) => {
       onlineUsers = onlineUsers.filter((id) => id !== userId);
-      io.emit("updateOnlineUsers", onlineUsers);
-      console.log("❌ User went offline:", userId);
+      io.emit("updateOnlineUsers", onlineUsers); // Send updated list to all clients
     });
 
     // ✅ Joining chat room
     socket.on("joinChat", ({ name, userId, connectionUserId, time, date }) => {
       const roomId = getSecretRoomId(userId, connectionUserId);
       socket.join(roomId);
-      console.log(`✅ ${userId} joined chat room: ${roomId}`);
-      console.log(`📢 Rooms user ${userId} is in:`, socket.rooms);
+      console.log("user join the chat room")
     });
 
     // ✅ Sending message
@@ -55,14 +56,6 @@ const initializeSocket = (server) => {
       async ({ name, userId, connectionUserId, text, time, date }) => {
         try {
           const roomId = getSecretRoomId(userId, connectionUserId);
-
-          console.log(`📩 User ${userId} is sending message to room: ${roomId}`);
-          console.log(`📢 Active rooms for user ${userId}:`, socket.rooms);
-
-          if (!socket.rooms.has(roomId)) {
-            console.log(`❌ User ${userId} is not in chat room: ${roomId}`);
-            return;
-          }
 
           // ✅ Check if connection exists
           const connectionExists = await ConnectionRequest.findOne({
@@ -80,14 +73,12 @@ const initializeSocket = (server) => {
             ],
           });
 
-          console.log("🔍 Checking connection between:", userId, connectionUserId);
-          console.log("🔗 Connection Exists:", connectionExists ? "YES" : "NO");
-
           if (!connectionExists) {
-            console.log("❌ You are not connected with this user.");
+            console.log("You are not connected with this user.");
             return;
           }
 
+          // ✅ Save message to DB
           let chat = await Chat.findOne({
             participants: { $all: [userId, connectionUserId] },
           });
@@ -108,6 +99,7 @@ const initializeSocket = (server) => {
 
           await chat.save();
 
+          // ✅ Emit message to specific room
           io.to(roomId).emit("messageReceived", {
             name,
             text,
@@ -116,8 +108,7 @@ const initializeSocket = (server) => {
             senderId: userId,
           });
 
-          console.log(`✅ Message sent successfully in room: ${roomId}`);
-
+          // ✅ Fetch FCM token of recipient
           const recipient = await User.findById(connectionUserId);
           if (recipient && recipient.fcmToken) {
             sendPushNotification(
@@ -128,48 +119,51 @@ const initializeSocket = (server) => {
             );
           }
         } catch (error) {
-          console.log("❌ Error sending message:", error);
+          console.log(error);
         }
       }
     );
 
+    // ✅ When user disconnects
     socket.on("disconnect", () => {
-      console.log(`🔴 User disconnected: ${socket.id}`);
+      // console.log("User disconnected");
     });
   });
 };
 
+// Function to send push notifications
 const sendPushNotification = async (fcmToken, senderName, messageText, connectionUserId) => {
   if (!fcmToken) {
     console.error("❌ No FCM Token found. Notification not sent.");
     return;
   }
 
+
   const message = {
     token: fcmToken,
-    notification: {
+    notification: { // ✅ Used for Background Notifications
       title: `New message from ${senderName}`,
       body: messageText,
     },
-    data: {
+    data: { // ✅ Used for Foreground Notifications (Handled Manually)
       title: `New message from ${senderName}`,
       body: messageText,
       click_action: `https://devworld.in/chat/${connectionUserId}`,
       messageId: new Date().getTime().toString(),
     },
-    webpush: {
+    webpush: { // ✅ Ensures proper click action in background
       notification: {
         title: `New message from ${senderName}`,
         body: messageText,
-        icon: "https://devworld.in/logodevworld.png",
-        click_action: `https://devworld.in/chat/${connectionUserId}`,
+        icon: "https://devworld.in/logodevworld.png", // ✅ Ensure this is a valid URL
+        click_action: `https://devworld.in/chat/${connectionUserId}`, // ✅ Clicking notification opens this URL
       },
     },
   };
 
   try {
     const response = await admin.messaging().send(message);
-    console.log("✅ Push notification sent successfully:", response);
+    // console.log("✅ Push notification sent successfully:", response);
   } catch (error) {
     console.error("❌ Error sending push notification:", error);
 
@@ -179,5 +173,6 @@ const sendPushNotification = async (fcmToken, senderName, messageText, connectio
     }
   }
 };
+
 
 module.exports = initializeSocket;
