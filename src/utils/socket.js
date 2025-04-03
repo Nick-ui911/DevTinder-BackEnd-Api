@@ -54,6 +54,8 @@ const initializeSocket = (server) => {
     socket.on(
       "sendMessage",
       async ({ name, userId, connectionUserId, text, time, date }) => {
+
+        console.log(userId+ "-" +connectionUserId)
         try {
           const roomId = getSecretRoomId(userId, connectionUserId);
 
