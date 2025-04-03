@@ -8,7 +8,7 @@ const http = require("http");
 const app = express();
 
 const corsOptions = {
-  origin: "http://localhost:5173",
+  origin: ["http://localhost:5173", "https://devworld.in"],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
