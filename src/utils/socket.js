@@ -117,7 +117,7 @@ const initializeSocket = (server) => {
               recipient.fcmToken,
               name,
               text,
-              userId // ✅ Use userId instead of connectionUserId
+              userId // ✅ Use userId instead of connectionUserId because it's the connectionUserId for the user who got the message notification;
 
             );
           }
