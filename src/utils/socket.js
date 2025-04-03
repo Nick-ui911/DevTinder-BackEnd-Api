@@ -135,7 +135,7 @@ const initializeSocket = (server) => {
 };
 
 // Function to send push notifications
-const sendPushNotification = async (fcmToken, senderName, messageText, recipientId) => {
+const sendPushNotification = async (fcmToken, senderName, messageText, userId) => {
   if (!fcmToken) {
     console.error("❌ No FCM Token found. Notification not sent.");
     return;
@@ -152,7 +152,7 @@ const sendPushNotification = async (fcmToken, senderName, messageText, recipient
     data: { // ✅ Used for Foreground Notifications (Handled Manually)
       title: `New message from ${senderName}`,
       body: messageText,
-      click_action: `https://devworld.in/chat/${recipientId}`,
+      click_action: `https://devworld.in/chat/${userId}`,
       messageId: new Date().getTime().toString(),
     },
     webpush: { // ✅ Ensures proper click action in background
@@ -160,7 +160,7 @@ const sendPushNotification = async (fcmToken, senderName, messageText, recipient
         title: `New message from ${senderName}`,
         body: messageText,
         icon: "https://devworld.in/logodevworld.png", // ✅ Ensure this is a valid URL
-        click_action: `https://devworld.in/chat/${recipientId}`, // ✅ Clicking notification opens this URL
+        click_action: `https://devworld.in/chat/${userId}`, // ✅ Clicking notification opens this URL
       },
     },
   };
