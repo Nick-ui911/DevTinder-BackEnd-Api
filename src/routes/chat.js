@@ -12,6 +12,9 @@ chatRouter.get("/chat/:connectionUserId", authUser, async (req, res) => {
     }).populate({
       path: "messages.senderId",
       select: "name",
+    }).populate({
+      path: "participants",
+      select: "name",
     });
     if (!chat) {
       const chat = new Chat({
