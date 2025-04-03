@@ -117,7 +117,7 @@ const initializeSocket = (server) => {
               recipient.fcmToken,
               name,
               text,
-              recipient._id // ✅ Use recipient._id instead of connectionUserId
+              userId // ✅ Use userId instead of connectionUserId
 
             );
           }
