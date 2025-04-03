@@ -115,7 +115,8 @@ const initializeSocket = (server) => {
               recipient.fcmToken,
               name,
               text,
-              connectionUserId
+              recipient._id // ✅ Use recipient._id instead of connectionUserId
+
             );
           }
         } catch (error) {
