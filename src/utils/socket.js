@@ -140,7 +140,7 @@ const sendPushNotification = async (fcmToken, senderName, messageText, userId) =
     console.error("❌ No FCM Token found. Notification not sent.");
     return;
   }
-  console.log(recipientId)
+  console.log(userId)
 
 
   const message = {
