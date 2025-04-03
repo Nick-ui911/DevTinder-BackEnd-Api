@@ -30,8 +30,9 @@ userRouter.get("/user/connections", authUser, async (req, res) => {
       ],
     })
       .populate("fromUserId", ["_id", "name", "gender", "PhotoUrl", "skills"])
-      .populate("toUserId", ["name", "gender", "PhotoUrl", "skills"]);
-
+      .populate("toUserId", ["_id", "name", "gender", "PhotoUrl", "skills"]);
+    // This ensures that only the other connected user's details are returned and not return own details.
+    // if i do not this it will return both user's details for every connection.
     const data = connections.map((row) => {
       if (row.fromUserId._id.toString() === loggedInUser._id.toString()) {
         return row.toUserId;
