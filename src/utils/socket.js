@@ -53,9 +53,9 @@ const initializeSocket = (server) => {
     // ✅ Sending message
     socket.on(
       "sendMessage",
-      async ({ name, userId, connectionUserId, text, time, date }) => {
+      async ({ name, userId, connectionUserId, text, time, date, media }) => {
 
-        console.log(userId+ "-" +connectionUserId)
+        // console.log(userId+ "-" +connectionUserId)
         try {
           const roomId = getSecretRoomId(userId, connectionUserId);
 
@@ -97,6 +97,7 @@ const initializeSocket = (server) => {
             text,
             time,
             date,
+            media,
           });
 
           await chat.save();
@@ -107,6 +108,7 @@ const initializeSocket = (server) => {
             text,
             time,
             date,
+            media,
             senderId: userId,
           });
 

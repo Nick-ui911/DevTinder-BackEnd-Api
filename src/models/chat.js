@@ -9,13 +9,15 @@ const messageSchema = new mongoose.Schema(
     },
     text: {
       type: String,
-      required: true,
     },
     time: {
       type: String, // Because toLocaleTimeString() returns a string
     },
     date: {
       type: String, // Because toLocaleDateString() returns a string
+    },
+    media:{
+      type: String,
     },
   },
   {
