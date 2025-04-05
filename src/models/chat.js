@@ -19,6 +19,9 @@ const messageSchema = new mongoose.Schema(
     media:{
       type: String,
     },
+    mediaType:{
+      type:String,
+    },
   },
   {
     timestamps: true,
