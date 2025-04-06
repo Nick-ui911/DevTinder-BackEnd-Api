@@ -10,7 +10,7 @@ var admin = require("./firebaseAdmin");
 const getSecretRoomId = (userId, connectionUserId) => {
   const secretRoomId = crypto
     .createHash("sha256")
-    .update([userId, connectionUserId].sort().join("_")) 
+    .update([userId, connectionUserId].sort().join("_"))
     .digest("hex");
   return secretRoomId;
 };
@@ -47,14 +47,13 @@ const initializeSocket = (server) => {
     socket.on("joinChat", ({ name, userId, connectionUserId, time, date }) => {
       const roomId = getSecretRoomId(userId, connectionUserId);
       socket.join(roomId);
-      console.log("user join the chat room")
+      console.log("user join the chat room");
     });
 
     // ✅ Sending message
     socket.on(
       "sendMessage",
       async ({ name, userId, connectionUserId, text, time, date, media }) => {
-
         // console.log(userId+ "-" +connectionUserId)
         try {
           const roomId = getSecretRoomId(userId, connectionUserId);
@@ -115,12 +114,16 @@ const initializeSocket = (server) => {
           // ✅ Fetch FCM token of recipient
           const recipient = await User.findById(connectionUserId);
           if (recipient && recipient.fcmToken) {
+            // ✅ Update text directly if only media is sent
+            if ((!text || text.trim() === "") && media) {
+              text = "📷 Sent an image"; // Set default text if only media is sent
+            }
+
             sendPushNotification(
               recipient.fcmToken,
               name,
               text,
               userId // ✅ Use userId instead of connectionUserId because it's the connectionUserId for the user who got the message notification;
-
             );
           }
         } catch (error) {
@@ -137,27 +140,33 @@ const initializeSocket = (server) => {
 };
 
 // Function to send push notifications
-const sendPushNotification = async (fcmToken, senderName, messageText, userId) => {
+const sendPushNotification = async (
+  fcmToken,
+  senderName,
+  messageText,
+  userId
+) => {
   if (!fcmToken) {
     console.error("❌ No FCM Token found. Notification not sent.");
     return;
   }
-  console.log(userId)
-
 
   const message = {
     token: fcmToken,
-    notification: { // ✅ Used for Background Notifications
+    notification: {
+      // ✅ Used for Background Notifications
       title: `New message from ${senderName}`,
       body: messageText,
     },
-    data: { // ✅ Used for Foreground Notifications (Handled Manually)
+    data: {
+      // ✅ Used for Foreground Notifications (Handled Manually)
       title: `New message from ${senderName}`,
       body: messageText,
       click_action: `https://devworld.in/chat/${userId}`,
       messageId: new Date().getTime().toString(),
     },
-    webpush: { // ✅ Ensures proper click action in background
+    webpush: {
+      // ✅ Ensures proper click action in background
       notification: {
         title: `New message from ${senderName}`,
         body: messageText,
@@ -179,6 +188,5 @@ const sendPushNotification = async (fcmToken, senderName, messageText, userId) =
     }
   }
 };
-
 
 module.exports = initializeSocket;
