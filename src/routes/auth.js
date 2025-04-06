@@ -9,7 +9,7 @@ const admin = require("../utils/firebaseAdmin");
 authRouter.post("/signup", async (req, res) => {
   try {
     validateData(req);
-    const { name, email, age, password, gender, PhotoUrl, skills } = req.body;
+    const { name, email,password, gender} = req.body;
 
     // 🔹 Check if the email already exists
     const existingUser = await User.findOne({ email });
@@ -24,10 +24,8 @@ authRouter.post("/signup", async (req, res) => {
       name,
       password: hashPassword,
       email,
-      age,
       gender,
-      PhotoUrl,
-      skills,
+
     });
 
     const savedUser = await user.save(); // Save the user to the database
@@ -51,7 +49,7 @@ authRouter.post("/signup", async (req, res) => {
 authRouter.post("/google-signup", async (req, res) => {
   try {
 
-    const { name, email, age, password, gender } = req.body;
+    const { name, email } = req.body;
 
     // Check if the email already exists
     const existingUser = await User.findOne({ email });
@@ -59,16 +57,12 @@ authRouter.post("/google-signup", async (req, res) => {
       return res.status(400).json({ message: "Email already exists" });
     }
 
-    // Hash the password (even if the user logged in through Google, we still need to store a password)
-    const hashPassword = await bcrypt.hash(password, 10);
+  
 
     // Create a new user instance
     const user = new User({
       name,
       email,
-      password: hashPassword,
-      age,
-      gender,
   
     });
 

@@ -22,15 +22,11 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
       validate: (value) => {
         if (!validator.isStrongPassword(value)) {
           throw new Error("Password must be strong");
         }
       },
-    },
-    age: {
-      type: Number,
     },
     gender: {
       type: String,
