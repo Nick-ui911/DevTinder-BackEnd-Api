@@ -53,7 +53,7 @@ const initializeSocket = (server) => {
     // ✅ Sending message
     socket.on(
       "sendMessage",
-      async ({ name, userId, connectionUserId, text, time, date, media }) => {
+      async ({ name, userId, connectionUserId, text, time, date, media, mediaType, }) => {
         // console.log(userId+ "-" +connectionUserId)
         try {
           const roomId = getSecretRoomId(userId, connectionUserId);
@@ -97,6 +97,7 @@ const initializeSocket = (server) => {
             time,
             date,
             media,
+            mediaType,
           });
 
           await chat.save();
@@ -108,6 +109,7 @@ const initializeSocket = (server) => {
             time,
             date,
             media,
+            mediaType,
             senderId: userId,
           });
 
@@ -116,9 +118,18 @@ const initializeSocket = (server) => {
           if (recipient && recipient.fcmToken) {
             // ✅ Update text directly if only media is sent
             if ((!text || text.trim() === "") && media) {
-              text = "📷 Sent an image"; // Set default text if only media is sent
+              if (mediaType === "image") {
+                text = "📷 Sent an image";
+              } else if (mediaType === "video") {
+                text = "🎥 Sent a video";
+              } else if (mediaType === "audio") {
+                text = "🎵 Sent an audio";
+              } else if (mediaType === "document") {
+                text = "📄 Sent a document";
+              } else {
+                text = "📎 Sent a file";
+              }
             }
-
             sendPushNotification(
               recipient.fcmToken,
               name,
