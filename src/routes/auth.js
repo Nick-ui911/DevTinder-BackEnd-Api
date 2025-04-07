@@ -49,7 +49,20 @@ authRouter.post("/signup", async (req, res) => {
 authRouter.post("/google-signup", async (req, res) => {
   try {
 
-    const { name, email } = req.body;
+    const { name, email, idToken} = req.body;
+    if (!idToken) {
+      return res.status(400).json({ message: "Missing idToken" });
+    }
+
+    // 🔥 Verify the idToken
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const firebaseEmail = decodedToken.email;
+
+    // Double-check email matches
+    if (firebaseEmail !== email) {
+      return res.status(400).json({ message: "Email mismatch" });
+    }
+
 
     // Check if the email already exists
     const existingUser = await User.findOne({ email });
