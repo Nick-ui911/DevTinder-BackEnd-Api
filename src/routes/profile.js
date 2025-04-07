@@ -82,4 +82,39 @@ profileRouter.patch("/profile/password", authUser, async (req, res) => {
   }
 });
 
+// profileRouter.js
+profileRouter.patch("/createPassword", authUser, async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ message: "Password is required." });
+    }
+
+    const user = await User.findById(req.user._id); // req.user from auth middleware
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // 👉 Check if password already exists
+    if (user.password) {
+      return res.status(400).json({
+        message: "Password is already created. Please update it instead.",
+      });
+    }
+
+    ValidatePassword(password); // Assuming this is your custom password validator
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password created successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: error.message || "Server error." });
+  }
+});
+
 module.exports = profileRouter;

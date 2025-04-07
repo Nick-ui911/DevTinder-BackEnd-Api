@@ -31,7 +31,7 @@ const ValidatePassword = (password)=>{
         throw new Error("Password is required.");
       }
     if(!validator.isStrongPassword(password)){
-        throw new Error("kamjor hai password sahi karo");
+        throw new Error("Password are not strong enough");
     }
 
 
