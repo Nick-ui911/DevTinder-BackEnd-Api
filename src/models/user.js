@@ -1,3 +1,4 @@
+require("dotenv").config(); // Load environment variables
 const mongoose = require("mongoose");
 var validator = require("validator");
 const bcrypt = require("bcrypt");
@@ -73,7 +74,7 @@ const userSchema = new mongoose.Schema(
 
 userSchema.methods.getJWT = async function () {
   const user = this;
-  const token = jwt.sign({ email: user.email }, "nick@102030", {
+  const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
     expiresIn: "1d",
   });
   return token;
