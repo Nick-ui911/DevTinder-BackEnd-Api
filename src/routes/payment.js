@@ -111,6 +111,20 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
     Best regards,  
     DevTinder Team`,
     };
+    const mailOptions2 = {
+      from: process.env.EMAIL_ADMIN, // Always send from your own email
+      to: user.email, // User's email
+      subject: "Payment Failed - Action Required",
+      text: `Dear ${user.name},
+    
+    Unfortunately, your payment for the **${payment.notes.membershipType}** membership could not be processed.
+    
+    Please try again or contact our support team if you continue to experience issues. We're here to help!
+    
+    Best regards,  
+    DevTinder Team`,
+    };
+    
 
     // Handle Payment Events
     if (event === "payment.captured") {
@@ -127,13 +141,14 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
       // );
     } else if (event === "payment.failed") {
       console.log("❌ Payment Failed:", paymentData.amount);
-      await sendEmail(
-        "ns048019@gmail.com",
-        "Payment Status",
-        `Hi ${user.name}, your payment of Rs ${
-          paymentData.amount / 100
-        } has failed`
-      );
+      await transporter.sendMail(mailOptions2);
+      // await sendEmail(
+      //   "ns048019@gmail.com",
+      //   "Payment Status",
+      //   `Hi ${user.name}, your payment of Rs ${
+      //     paymentData.amount / 100
+      //   } has failed`
+      // );
     }
 
     res.status(200).json({ status: "Webhook received" });
