@@ -25,6 +25,8 @@ const initializeSocket = (server) => {
   // ✅ Maintain a global array of online users
   let onlineUsers = [];
 
+  //for below line, It's coming from the frontend client, which uses socket.io-client client library to connect with this backend socket
+
   io.on("connection", (socket) => {
     // console.log("New user connected");
 
@@ -53,7 +55,16 @@ const initializeSocket = (server) => {
     // ✅ Sending message
     socket.on(
       "sendMessage",
-      async ({ name, userId, connectionUserId, text, time, date, media, mediaType, }) => {
+      async ({
+        name,
+        userId,
+        connectionUserId,
+        text,
+        time,
+        date,
+        media,
+        mediaType,
+      }) => {
         // console.log(userId+ "-" +connectionUserId)
         try {
           const roomId = getSecretRoomId(userId, connectionUserId);
@@ -163,6 +174,8 @@ const sendPushNotification = async (
   }
 
   const message = {
+    // 🔗 This is the unique FCM token assigned to the user's device or browser.
+    // It ensures the notification is delivered to the correct recipient.
     token: fcmToken,
     notification: {
       // ✅ Used for Background Notifications

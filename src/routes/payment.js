@@ -93,11 +93,6 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
 
     console.log("📌 User Found:", user);
 
-    user.isPremium = true;
-    user.membershipType = payment.notes.membershipType;
-    await user.save();
-    // console.log("📌 User Premium Updated:", user.isPremium);
-
     const mailOptions = {
       from: process.env.EMAIL_ADMIN, // Always send from your own email
       to: user.email, // User's email
@@ -124,31 +119,14 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
     Best regards,  
     DevTinder Team`,
     };
-    
 
-    // Handle Payment Events
     if (event === "payment.captured") {
+      user.isPremium = true;
+      user.membershipType = payment.notes.membershipType;
+      await user.save();
       await transporter.sendMail(mailOptions);
-      // console.log("✅ Payment Captured:", paymentData.amount);
-
-      //  sending mail using aws ses
-      // await sendEmail(
-      //   "ns048019@gmail.com",
-      //   "Payment Status",
-      //   `Hi ${user.name}, your payment of Rs ${
-      //     paymentData.amount / 100
-      //   } has been captured successfully`
-      // );
     } else if (event === "payment.failed") {
-      console.log("❌ Payment Failed:", paymentData.amount);
       await transporter.sendMail(mailOptions2);
-      // await sendEmail(
-      //   "ns048019@gmail.com",
-      //   "Payment Status",
-      //   `Hi ${user.name}, your payment of Rs ${
-      //     paymentData.amount / 100
-      //   } has failed`
-      // );
     }
 
     res.status(200).json({ status: "Webhook received" });

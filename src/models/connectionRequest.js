@@ -37,6 +37,9 @@ connectionRequestSchema.pre("save", function (next) {
 
     next();
 });
+// Create a Mongoose model named "ConnectionRequest" based on connectionRequestSchema.
+// This model represents the "connectionrequests"(because this converted in plural by mongoose "ConnectionRequest") collection in MongoDB 
+// and is used to perform CRUD operations on it.
 
 const ConnectionRequest = mongoose.model(
     "ConnectionRequest",
